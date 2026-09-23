@@ -1,0 +1,14 @@
+<!-- templates/register.html -->
+{% extends "base.html" %}
+{% block title %}Register — InvestSmart{% endblock %}
+{% block content %}
+    <div class="form-box">
+        <h1>Create Your Account</h1>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn-primary big">Register</button>
+        </form>
+        <p class="small">Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+    </div>
+{% endblock %}

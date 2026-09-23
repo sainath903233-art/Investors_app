@@ -1,0 +1,15 @@
+<!-- templates/help.html -->
+{% extends "base.html" %}
+{% block title %}Help — InvestSmart{% endblock %}
+{% block content %}
+    <h1>Help</h1>
+    <h3>How do I start?</h3>
+    <p>Click "Sign Up", create an account, then log in to see your dashboard.</p>
+    <h3>How do I analyse a share?</h3>
+    <p>Go to your dashboard and search for a share by its symbol (for example RELIANCE or TCS).</p>
+    <h3>Why is market data empty?</h3>
+    <p>The market data comes from the FastAPI backend. Make sure it is running on port 9000.</p>
+    <h3>Is this financial advice?</h3>
+    <p>No. Everything here is for learning only. Always take your own decisions and consult a
+       registered adviser before investing.</p>
+{% endblock %}

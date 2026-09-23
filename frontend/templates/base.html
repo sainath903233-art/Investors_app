@@ -1,0 +1,49 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}InvestSmart{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="{% url 'home' %}" class="brand">&#128200; InvestSmart</a>
+        <div class="nav-links">
+            <a href="{% url 'about' %}">About</a>
+            <a href="{% url 'features' %}">Features</a>
+            <a href="{% url 'contact' %}">Contacts</a>
+            <a href="{% url 'help' %}">Help</a>
+            <button id="themeBtn" class="theme-btn" onclick="toggleTheme()">&#127769; Dark</button>
+            {% if user.is_authenticated %}
+                <a href="{% url 'dashboard' %}">Dashboard</a>
+                <a href="{% url 'logout' %}" class="btn-outline">Logout</a>
+            {% else %}
+                <a href="{% url 'login' %}">Login</a>
+                <a href="{% url 'register' %}" class="btn-primary">Sign Up</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="msg {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <p>InvestSmart — For educational purposes only. Take your own decisions, don't rely on tips.</p>
+    </footer>
+
+    <script src="{% static 'js/theme.js' %}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

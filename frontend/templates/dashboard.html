@@ -1,0 +1,132 @@
+<!-- templates/dashboard.html -->
+{% extends "base.html" %}
+{% block title %}Dashboard — InvestSmart{% endblock %}
+{% block content %}
+    <h1>Welcome, {{ user.username }} &#128075;</h1>
+    <p>Your risk profile is <b>{{ risk }}</b> — this shapes the tips you see.</p>
+
+    <!-- ===== LIVE MARKET INDICES ===== -->
+    <h2>&#127757; Live Market Indices</h2>
+    {% if error %}<div class="msg error">{{ error }}</div>{% endif %}
+    {% if indices %}
+        <div class="cards">
+            {% for name, info in indices.items %}
+                <div class="card index-card">
+                    <div class="index-name">{{ name }}</div>
+                    <div class="index-price">{{ info.price }}</div>
+                    <div class="index-change">{{ info.change_pct }}%</div>
+                </div>
+            {% endfor %}
+        </div>
+    {% elif not error %}
+        <p>Loading market data…</p>
+    {% endif %}
+
+    <!-- ===== STOCK SEARCH ===== -->
+    <h2 style="margin-top:30px;">&#128269; Analyse a Stock</h2>
+    <form method="get" class="search-form">
+        <input type="text" name="symbol" placeholder="Type a symbol, e.g. RELIANCE, TCS, INFY"
+               value="{{ searched|default:'' }}">
+        <button type="submit" class="btn-primary">Analyse</button>
+    </form>
+    <p class="small" style="text-align:left;">Try: RELIANCE, TCS, INFY, HDFCBANK, SBIN, WIPRO</p>
+
+    {% if stock_error %}<div class="msg error">{{ stock_error }}</div>{% endif %}
+
+    <!-- ===== ANALYSIS RESULT ===== -->
+    {% if analysis %}
+        <div class="analysis">
+            <h2>{{ analysis.name }} <span class="ticker">({{ analysis.symbol }} · {{ analysis.sector }})</span></h2>
+            <div class="price-row">
+                <span class="big-price">&#8377;{{ analysis.current_price }}</span>
+                <span class="change {{ analysis.direction }}">{{ analysis.change_pct }}%</span>
+            </div>
+
+            <!-- Score badges -->
+            <div class="badges">
+                <div class="badge">
+                    <div class="badge-label">Company Health</div>
+                    <div class="badge-score">{{ analysis.fundamental.overall_score }}/100</div>
+                    <div class="badge-verdict">{{ analysis.fundamental.verdict }}</div>
+                </div>
+                <div class="badge">
+                    <div class="badge-label">Market Timing</div>
+                    <div class="badge-score">{{ analysis.technical.overall_score }}/100</div>
+                    <div class="badge-verdict">{{ analysis.technical.overall_signal }}</div>
+                </div>
+                <div class="badge">
+                    <div class="badge-label">Next-Week Outlook</div>
+                    <div class="badge-score">{{ analysis.prediction.combined_score }}/100</div>
+                    <div class="badge-verdict">{{ analysis.prediction.prediction }}</div>
+                </div>
+            </div>
+
+            <!-- Bull vs Bear bar -->
+            <div class="prob-bar">
+                <div class="bull" style="width: {{ analysis.prediction.probability.bullish }}%;">
+                    Up {{ analysis.prediction.probability.bullish }}%
+                </div>
+                <div class="bear" style="width: {{ analysis.prediction.probability.bearish }}%;">
+                    Down {{ analysis.prediction.probability.bearish }}%
+                </div>
+            </div>
+
+            <!-- Price chart (last 60 days) -->
+            <h3>Price — Last 60 Days</h3>
+            <canvas id="priceChart" height="110"></canvas>
+
+            <!-- Key insights -->
+            {% if analysis.insights %}
+                <h3>Key Insights</h3>
+                <ul class="insights">
+                    {% for i in analysis.insights %}<li>{{ i }}</li>{% endfor %}
+                </ul>
+            {% endif %}
+
+            <!-- Personalised tips -->
+            {% if tips %}
+                <h3>&#128737; Safety Tips (for {{ risk }} investors)</h3>
+                <ul class="tips">
+                    {% for t in tips %}<li>{{ t }}</li>{% endfor %}
+                </ul>
+            {% endif %}
+
+            <!-- Disclaimer -->
+            <div class="disclaimer">&#9888; {{ analysis.disclaimer }}</div>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if analysis %}
+<!-- Chart.js draws the small price chart -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+    // Data passed from Django (already turned into JSON in views.py)
+    const labels = {{ chart_labels|safe }};
+    const prices = {{ chart_prices|safe }};
+    const up = prices.length > 1 && prices[prices.length - 1] >= prices[0];
+    const line = up ? "#26a69a" : "#ef5350";
+
+    new Chart(document.getElementById("priceChart"), {
+        type: "line",
+        data: {
+            labels: labels,
+            datasets: [{
+                data: prices,
+                borderColor: line,
+                backgroundColor: "rgba(38,166,154,0.08)",
+                fill: true, tension: 0.25, pointRadius: 0, borderWidth: 2,
+            }]
+        },
+        options: {
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { ticks: { maxTicksLimit: 6, color: "#888" }, grid: { display: false } },
+                y: { ticks: { color: "#888" } }
+            }
+        }
+    });
+</script>
+{% endif %}
+{% endblock %}

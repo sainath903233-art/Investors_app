@@ -1,0 +1,54 @@
+/* static/css/style.css */
+
+/* ===== THEME COLORS ===== */
+:root {
+    --bg: #f4f6fb;
+    --surface: #ffffff;
+    --text: #1a1f36;
+    --muted: #6b7280;
+    --primary: #4f46e5;
+    --primary-2: #7c3aed;
+    --accent: #06b6d4;
+    --green: #10b981;
+    --orange: #f59e0b;
+    --pink: #ec4899;
+    --border: #e5e7eb;
+    --shadow: 0 10px 30px rgba(31, 41, 99, 0.08);
+    --hero-grad: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%);
+}
+[data-theme="dark"] {
+    --bg: #0d1117;
+    --surface: #161b24;
+    --text: #e6edf3;
+    --muted: #9aa4b2;
+    --primary: #818cf8;
+    --primary-2: #a78bfa;
+    --accent: #22d3ee;
+    --green: #34d399;
+    --orange: #fbbf24;
+    --pink: #f472b6;
+    --border: #262d38;
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    --hero-grad: linear-gradient(135deg, #3730a3 0%, #6d28d9 50%, #be185d 100%);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    font-family: 'Segoe UI', system-ui, Arial, sans-serif;
+    background: var(--bg); color: var(--text);
+    transition: background 0.3s, color 0.3s; line-height: 1.6;
+}
+
+/* ===== NAVBAR ===== */
+.navbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 32px; background: var(--surface);
+    border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 20;
+    flex-wrap: wrap; gap: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+.brand {
+    font-size: 22px; font-weight: 800; text-decoration: none;
+    background: var(--hero-grad); -webkit-background-clip: text;
+    background-clip: text; -webkit-text-fill-color: transparent;
+}
+.nav-links { display: flex; align-items: center; gap: 18px;
