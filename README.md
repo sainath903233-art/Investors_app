@@ -154,4 +154,4 @@ This is a **team-developed academic project**. The project was initially develop
 
 ## Disclaimer
 
-InvestSmart is an **educational project**. Its analysis and AI-generated insights are not professional financial advice and should not be used as the sole basis for investment decisions.
+Investors_app is an **educational project**. Its analysis and AI-generated insights are not professional financial advice and should not be used as the sole basis for investment decisions.
