@@ -1,4 +1,4 @@
-# InvestSmart — How to Run (Complete Web Application)
+# Investors_app — How to Run (Complete Web Application)
 
 This project has TWO parts that run at the same time:
 
