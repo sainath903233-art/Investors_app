@@ -1,87 +1,203 @@
 {% extends "base.html" %}
-{% block title %}Home — InvestSmart{% endblock %}
+
+{% block title %}InvestSmart | AI Investment Insights{% endblock %}
+
 {% block content %}
 
-    <!-- HERO -->
-    <section class="hero">
-        <h1>Invest with Confidence,<br>Not Guesswork</h1>
-        <p>InvestSmart helps small and retail investors understand the market, check a company's health, and minimise losses — all in plain, simple language.</p>
-        <div class="hero-buttons">
-            <a href="{% url 'register' %}" class="btn-primary big">Get Started Free</a>
-            <a href="{% url 'features' %}" class="btn-outline big">Explore Features</a>
-        </div>
-    </section>
+<section class="hero">
 
-    <!-- STATS -->
-    <section class="stats">
-        <div class="stat"><div class="num">6+</div><div class="lbl">Financial Health Checks</div></div>
-        <div class="stat"><div class="num">6</div><div class="lbl">Market Timing Signals</div></div>
-        <div class="stat"><div class="num">1 Week</div><div class="lbl">Market Outlook</div></div>
-        <div class="stat"><div class="num">100%</div><div class="lbl">Free to Use</div></div>
-    </section>
+    <div class="hero-content">
 
-    <!-- FEATURES -->
-    <h2 class="section-title">Everything You Need Before You Invest</h2>
-    <p class="section-sub">Simple tools that turn complex market data into clear decisions.</p>
-    <section class="cards">
-        <div class="card">
-            <div class="icon icon-blue">&#128202;</div>
-            <h3>Company Health Check</h3>
-            <p>See if a company is financially strong using six trusted measures, scored into one simple rating.</p>
+        <div class="hero-badge">
+            🤖 Generative AI • Market Intelligence • Risk Awareness
         </div>
-        <div class="card">
-            <div class="icon icon-green">&#128201;</div>
-            <h3>Market Timing</h3>
-            <p>Know whether now is a good or risky time to buy or sell, based on proven price indicators.</p>
-        </div>
-        <div class="card">
-            <div class="icon icon-orange">&#128200;</div>
-            <h3>Weekly Outlook</h3>
-            <p>A clear view of what might happen in the coming week, with an easy up-vs-down meter.</p>
-        </div>
-        <div class="card">
-            <div class="icon icon-pink">&#128737;</div>
-            <h3>Safety Tips</h3>
-            <p>Personalised advice — stop-loss levels and warnings — shaped by your own risk level.</p>
-        </div>
-        <div class="card">
-            <div class="icon icon-cyan">&#128200;</div>
-            <h3>Live Price Charts</h3>
-            <p>A clean chart for every share so you can see recent ups and downs at a glance.</p>
-        </div>
-        <div class="card">
-            <div class="icon icon-purple">&#11088;</div>
-            <h3>Your Watchlist</h3>
-            <p>Save the shares you care about and open their full study in one click.</p>
-        </div>
-    </section>
 
-    <!-- HOW IT WORKS -->
-    <h2 class="section-title" style="margin-top:44px;">How It Works</h2>
-    <p class="section-sub">Three simple steps to smarter investing.</p>
-    <section class="steps">
+        <h1>
+            Smarter insights for
+            <span>every investor.</span>
+        </h1>
+
+        <p>
+            InvestSmart bridges the investment advisory gap by combining
+            market information, risk profiling and Generative AI to help
+            retail and small-scale investors understand investment
+            opportunities and risks.
+        </p>
+
+        <div class="hero-actions">
+
+            {% if user.is_authenticated %}
+
+                <a href="{% url 'dashboard' %}" class="btn-primary">
+                    Open Dashboard →
+                </a>
+
+            {% else %}
+
+                <a href="{% url 'register' %}" class="btn-primary">
+                    Start Exploring →
+                </a>
+
+                <a href="{% url 'login' %}" class="btn-outline">
+                    Sign In
+                </a>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<section class="section">
+
+    <h2 class="section-title">
+        Investment Intelligence, Simplified
+    </h2>
+
+    <p class="section-subtitle">
+        InvestSmart brings important investment information together
+        in one simple interface designed for retail and small-scale investors.
+    </p>
+
+
+    <div class="cards-grid">
+
+        <div class="card">
+
+            <div class="card-icon">
+                📈
+            </div>
+
+            <h3>Market Intelligence</h3>
+
+            <p>
+                Explore market indices and stock information through
+                an easy-to-understand investment dashboard.
+            </p>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-icon">
+                🤖
+            </div>
+
+            <h3>Generative AI Insights</h3>
+
+            <p>
+                Transform financial information into understandable
+                AI-generated explanations and investment insights.
+            </p>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-icon">
+                🛡️
+            </div>
+
+            <h3>Risk-Aware Guidance</h3>
+
+            <p>
+                Receive insights based on different investor risk
+                profiles and understand potential investment risks.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<section class="section">
+
+    <h2 class="section-title">
+        How InvestSmart Works
+    </h2>
+
+    <p class="section-subtitle">
+        From your investor profile to AI-powered insights.
+    </p>
+
+
+    <div class="steps">
+
         <div class="step">
-            <div class="step-num">1</div>
-            <h3>Create Your Account</h3>
-            <p>Sign up in seconds and pick your risk level — careful, balanced, or bold.</p>
-        </div>
-        <div class="step">
-            <div class="step-num">2</div>
-            <h3>Search Any Stock</h3>
-            <p>Type a symbol like RELIANCE or TCS and get an instant, easy-to-read study.</p>
-        </div>
-        <div class="step">
-            <div class="step-num">3</div>
-            <h3>Decide with Confidence</h3>
-            <p>Read the health score, outlook, and safety tips — then make your own call.</p>
-        </div>
-    </section>
 
-    <!-- CTA -->
-    <section class="cta">
-        <h2>Ready to protect your money?</h2>
-        <p>Join InvestSmart today and start making informed decisions.</p>
-        <a href="{% url 'register' %}" class="btn-primary big">Create Your Free Account</a>
-    </section>
+            <div class="step-number">
+                STEP 01
+            </div>
+
+            <h3>Create Your Profile</h3>
+
+            <p>
+                Register and provide your investment risk profile
+                to personalize the experience.
+            </p>
+
+        </div>
+
+
+        <div class="step">
+
+            <div class="step-number">
+                STEP 02
+            </div>
+
+            <h3>Explore Market Data</h3>
+
+            <p>
+                View available market indices and stock information
+                through your dashboard.
+            </p>
+
+        </div>
+
+
+        <div class="step">
+
+            <div class="step-number">
+                STEP 03
+            </div>
+
+            <h3>Understand AI Insights</h3>
+
+            <p>
+                Explore AI-generated analysis and risk-aware insights
+                to better understand investment information.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<section class="section">
+
+    <div class="card">
+
+        <h2>
+            Built to bridge the advisory gap.
+        </h2>
+
+        <p style="margin-top: 12px;">
+            InvestSmart is designed as an educational and analytical
+            platform. It helps users understand market information,
+            rather than replacing professional financial advice.
+        </p>
+
+    </div>
+
+</section>
 
 {% endblock %}

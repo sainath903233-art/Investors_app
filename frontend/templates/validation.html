@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block title %}
+Validation Dashboard — InvestSmart
+{% endblock %}
+
+{% block content %}
+
+<div class="validation-page">
+
+    <div class="content-heading">
+
+        <div class="content-icon">
+            🧪
+        </div>
+
+        <div>
+
+            <span class="section-label">
+                MODEL VALIDATION
+            </span>
+
+            <h1>
+                Technical Analysis Validation
+            </h1>
+
+            <p>
+                Historical evaluation across multiple Indian stocks
+                and sectors using the current technical-analysis rules.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    {% if validation %}
+
+    <!-- SUMMARY -->
+
+    <div class="backtest-metrics">
+
+        <div class="backtest-metric">
+            <span>Stocks Tested</span>
+            <strong>
+                {{ validation.stocks_tested }}
+            </strong>
+        </div>
+
+        <div class="backtest-metric">
+            <span>Accuracy</span>
+            <strong>
+                {{ validation.macro_average.accuracy }}%
+            </strong>
+        </div>
+
+        <div class="backtest-metric">
+            <span>Precision</span>
+            <strong>
+                {{ validation.macro_average.precision }}%
+            </strong>
+        </div>
+
+        <div class="backtest-metric">
+            <span>F1 Score</span>
+            <strong>
+                {{ validation.macro_average.f1_score }}%
+            </strong>
+        </div>
+
+    </div>
+
+
+    <!-- STOCK TABLE -->
+
+    <section class="validation-card">
+
+        <h2>
+            Stock-Level Results
+        </h2>
+
+        <div class="validation-table">
+
+            <div class="validation-row validation-header">
+
+                <div>Stock</div>
+                <div>Sector</div>
+                <div>Cases</div>
+                <div>Actionable</div>
+                <div>Accuracy</div>
+                <div>Precision</div>
+                <div>Recall</div>
+                <div>F1</div>
+
+            </div>
+
+
+            {% for result in validation.results %}
+
+                {% if result.success %}
+
+                <div class="validation-row">
+
+                    <div class="metric-name">
+                        {{ result.symbol }}
+                    </div>
+
+                    <div>
+                        {{ result.sector }}
+                    </div>
+
+                    <div>
+                        {{ result.cases }}
+                    </div>
+
+                    <div>
+                        {{ result.actionable }}
+                    </div>
+
+                    <div>
+                        {{ result.accuracy }}%
+                    </div>
+
+                    <div>
+                        {{ result.precision }}%
+                    </div>
+
+                    <div>
+                        {{ result.recall }}%
+                    </div>
+
+                    <div class="metric-contribution">
+                        {{ result.f1_score }}%
+                    </div>
+
+                </div>
+
+                {% endif %}
+
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+
+    <!-- METHODOLOGY -->
+
+    <section class="validation-card">
+
+        <h2>
+            Validation Methodology
+        </h2>
+
+        <p>
+            Each stock is evaluated using historical daily data.
+            Technical indicators are calculated using only information
+            available at each historical test date. The prediction is
+            compared with the actual price direction after five trading
+            days.
+        </p>
+
+        <p>
+            A future return above +1% is classified as BUY, a return below
+            -1% as SELL, and movements between -1% and +1% as NEUTRAL.
+        </p>
+
+        <p>
+            Accuracy, precision, recall and F1 score are calculated only
+            for actionable BUY and SELL predictions.
+        </p>
+
+    </section>
+
+
+    {% else %}
+
+        <div class="msg error">
+            {{ validation_error }}
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

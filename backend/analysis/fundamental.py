@@ -83,31 +83,102 @@ def score_peg(peg: Optional[float]) -> dict:
             "note": f"PEG of {round(peg,2)} (below 1.0 is ideal)"}
 
 def run_fundamental_analysis(stock_data: dict) -> dict:
-    fa     = stock_data.get("fundamentals", {})
+    fa = stock_data.get("fundamentals", {})
     sector = stock_data.get("sector", "default")
+
     metrics = {
-        "roe":        score_roe(fa.get("roe")),
-        "roic":       score_roic(fa.get("roic")),
+        "roe": score_roe(fa.get("roe")),
+        "roic": score_roic(fa.get("roic")),
         "net_margin": score_net_margin(fa.get("net_margin")),
-        "pe_ratio":   score_pe(fa.get("pe_ratio"), sector),
-        "pb_ratio":   score_pb(fa.get("pb_ratio")),
-        "peg_ratio":  score_peg(fa.get("peg_ratio")),
+        "pe_ratio": score_pe(fa.get("pe_ratio"), sector),
+        "pb_ratio": score_pb(fa.get("pb_ratio")),
+        "peg_ratio": score_peg(fa.get("peg_ratio")),
     }
-    weights = {"roe": 0.20, "roic": 0.15, "net_margin": 0.15,
-               "pe_ratio": 0.20, "pb_ratio": 0.15, "peg_ratio": 0.15}
-    overall = round(sum(metrics[k]["score"] * weights[k] for k in weights), 1)
 
-    if overall >= 75:   verdict, color = "Fundamentally Strong", "green"
-    elif overall >= 55: verdict, color = "Fundamentally Fair",   "blue"
-    elif overall >= 35: verdict, color = "Fundamentally Weak",   "orange"
-    else:               verdict, color = "High Risk / Overvalued", "red"
+    # Original importance of each metric
+    base_weights = {
+        "roe": 0.20,
+        "roic": 0.15,
+        "net_margin": 0.15,
+        "pe_ratio": 0.20,
+        "pb_ratio": 0.15,
+        "peg_ratio": 0.15,
+    }
 
-    high_52 = fa.get("52w_high"); low_52 = fa.get("52w_low")
-    price   = stock_data.get("current_price", 0)
+    # Use only metrics for which real data is available
+    available_metrics = {
+        key: value
+        for key, value in metrics.items()
+        if value["value"] is not None
+    }
+
+    if not available_metrics:
+        overall = 50.0
+        normalized_weights = {}
+    else:
+        # Redistribute the weights of available metrics
+        available_weight = sum(
+            base_weights[key]
+            for key in available_metrics
+        )
+
+        normalized_weights = {
+    key: round(base_weights[key] / available_weight, 4)
+    for key in available_metrics
+}
+
+# Calculate each metric's contribution to the final score
+    for key in available_metrics:
+      metrics[key]["weight"] = normalized_weights[key]
+      metrics[key]["contribution"] = round(
+      metrics[key]["score"] * normalized_weights[key],
+        2
+    )
+
+    overall = round(
+           sum(
+        metrics[key]["contribution"]
+        for key in available_metrics
+    ),
+    1
+)
+
+        
+
+    if overall >= 75:
+        verdict, color = "Fundamentally Strong", "green"
+    elif overall >= 55:
+        verdict, color = "Fundamentally Fair", "blue"
+    elif overall >= 35:
+        verdict, color = "Fundamentally Weak", "orange"
+    else:
+        verdict, color = "High Risk / Overvalued", "red"
+
+    high_52 = fa.get("52w_high")
+    low_52 = fa.get("52w_low")
+    price = stock_data.get("current_price", 0)
+
     w52_pos = None
-    if high_52 and low_52 and high_52 != low_52:
-        w52_pos = round((price - low_52) / (high_52 - low_52) * 100, 1)
 
-    return {"overall_score": overall, "verdict": verdict, "color": color, "metrics": metrics,
-            "extra": {"52w_high": high_52, "52w_low": low_52, "52w_position": w52_pos,
-                      "market_cap": fa.get("market_cap"), "beta": fa.get("beta")}}
+    if high_52 and low_52 and high_52 != low_52:
+        w52_pos = round(
+            (price - low_52) /
+            (high_52 - low_52) * 100,
+            1
+        )
+
+    return {
+        "overall_score": overall,
+        "verdict": verdict,
+        "color": color,
+        "metrics": metrics,
+        "weights": normalized_weights,
+        "available_metrics": list(available_metrics.keys()),
+        "extra": {
+            "52w_high": high_52,
+            "52w_low": low_52,
+            "52w_position": w52_pos,
+            "market_cap": fa.get("market_cap"),
+            "beta": fa.get("beta"),
+        },
+    }

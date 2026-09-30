@@ -1,132 +1,969 @@
-<!-- templates/dashboard.html -->
 {% extends "base.html" %}
-{% block title %}Dashboard — InvestSmart{% endblock %}
+
+{% block title %}Dashboard | InvestSmart{% endblock %}
+
 {% block content %}
-    <h1>Welcome, {{ user.username }} &#128075;</h1>
-    <p>Your risk profile is <b>{{ risk }}</b> — this shapes the tips you see.</p>
 
-    <!-- ===== LIVE MARKET INDICES ===== -->
-    <h2>&#127757; Live Market Indices</h2>
-    {% if error %}<div class="msg error">{{ error }}</div>{% endif %}
-    {% if indices %}
-        <div class="cards">
-            {% for name, info in indices.items %}
-                <div class="card index-card">
-                    <div class="index-name">{{ name }}</div>
-                    <div class="index-price">{{ info.price }}</div>
-                    <div class="index-change">{{ info.change_pct }}%</div>
-                </div>
-            {% endfor %}
+<div class="dashboard-page">
+
+    <!-- =====================================================
+         WELCOME HEADER
+         ===================================================== -->
+
+    <section class="dashboard-hero">
+
+        <div class="dashboard-hero-content">
+
+            <span class="section-label">
+                INVESTSMART AI
+            </span>
+
+            <h1>
+                Welcome back, {{ user.username }} 👋
+            </h1>
+
+            <p>
+                Explore the market, analyse stocks and understand
+                investment insights with AI-assisted analysis.
+            </p>
+
         </div>
-    {% elif not error %}
-        <p>Loading market data…</p>
-    {% endif %}
 
-    <!-- ===== STOCK SEARCH ===== -->
-    <h2 style="margin-top:30px;">&#128269; Analyse a Stock</h2>
-    <form method="get" class="search-form">
-        <input type="text" name="symbol" placeholder="Type a symbol, e.g. RELIANCE, TCS, INFY"
-               value="{{ searched|default:'' }}">
-        <button type="submit" class="btn-primary">Analyse</button>
-    </form>
-    <p class="small" style="text-align:left;">Try: RELIANCE, TCS, INFY, HDFCBANK, SBIN, WIPRO</p>
 
-    {% if stock_error %}<div class="msg error">{{ stock_error }}</div>{% endif %}
+        <div class="risk-profile-card">
 
-    <!-- ===== ANALYSIS RESULT ===== -->
+            <div class="risk-icon">
+                🛡️
+            </div>
+
+            <div>
+                <span class="risk-label">
+                    Your Risk Profile
+                </span>
+
+                <strong>
+                    {{ risk|title }}
+                </strong>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         AI STOCK ANALYST
+         ===================================================== -->
+
+    <section class="ai-stock-analyst">
+
+        <div class="ai-glow"></div>
+
+        <div class="ai-content">
+
+            <div class="ai-badge">
+                ✦ AI STOCK ANALYST
+            </div>
+
+            <h2>
+                What do you want to
+                <span>know about a stock?</span>
+            </h2>
+
+            <p>
+                Enter an NSE stock symbol and get a simple view of
+                fundamentals, technical indicators and AI-assisted insights.
+            </p>
+
+
+            <!-- SEARCH -->
+
+            <form method="get" class="ai-search-form">
+
+                <div class="ai-input-wrapper">
+
+                    <span class="ai-input-icon">
+                        ✦
+                    </span>
+
+                    <input
+                        type="text"
+                        id="stockSymbol"
+                        name="symbol"
+                        value="{{ request.GET.symbol|default:'' }}"
+                        placeholder="Search NSE stock...  e.g. TCS"
+                        autocomplete="off"
+                        required
+                    >
+
+                    <span class="exchange-badge">
+                        NSE
+                    </span>
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="ai-search-button">
+
+                    Analyse Stock
+                    <span>→</span>
+
+                </button>
+
+            </form>
+
+
+            <!-- EXAMPLES -->
+
+            <div class="ai-prompts">
+
+                <span>Try:</span>
+
+                <button
+                    type="button"
+                    onclick="selectStock('TCS')">
+                    TCS
+                </button>
+
+                <button
+                    type="button"
+                    onclick="selectStock('RELIANCE')">
+                    RELIANCE
+                </button>
+
+                <button
+                    type="button"
+                    onclick="selectStock('INFY')">
+                    INFY
+                </button>
+
+                <button
+                    type="button"
+                    onclick="selectStock('HDFCBANK')">
+                    HDFCBANK
+                </button>
+
+                <button
+                    type="button"
+                    onclick="selectStock('SBIN')">
+                    SBIN
+                </button>
+
+            </div>
+
+
+            {% if stock_error %}
+
+            <div class="stock-search-error">
+                ⚠️ {{ stock_error }}
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         MARKET OVERVIEW
+         ===================================================== -->
+
+    <section class="dashboard-section">
+
+        <div class="section-heading">
+
+            <div>
+
+                <span class="section-label">
+                    MARKET OVERVIEW
+                </span>
+
+                <h2>
+                    🌍 Market Today
+                </h2>
+
+            </div>
+
+
+            <div class="market-status">
+
+                <span class="live-status">
+
+                    <span class="live-dot"></span>
+
+                    Live Data
+
+                </span>
+
+                {% if market_updated_at %}
+
+                <span class="last-updated">
+                    Updated {{ market_updated_at }}
+                </span>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <div class="market-grid">
+
+
+            <!-- NIFTY -->
+
+            <div class="market-card">
+
+                <div class="market-card-header">
+
+                    <span>
+                        NIFTY 50
+                    </span>
+
+                    {% if indices.NIFTY50.direction == "up" %}
+
+                    <span class="market-arrow positive">
+                        ▲
+                    </span>
+
+                    {% else %}
+
+                    <span class="market-arrow negative">
+                        ▼
+                    </span>
+
+                    {% endif %}
+
+                </div>
+
+
+                <strong class="market-price">
+
+                    {% if indices.NIFTY50.price %}
+                        {{ indices.NIFTY50.price|floatformat:2 }}
+                    {% else %}
+                        N/A
+                    {% endif %}
+
+                </strong>
+
+
+                <span class="
+                    market-change
+                    {% if indices.NIFTY50.change_pct >= 0 %}
+                        positive
+                    {% else %}
+                        negative
+                    {% endif %}
+                ">
+
+                    {% if indices.NIFTY50.change_pct >= 0 %}
+                        ▲
+                    {% else %}
+                        ▼
+                    {% endif %}
+
+                    {{ indices.NIFTY50.change_pct|default:"0"|floatformat:2 }}%
+
+                </span>
+
+            </div>
+
+
+            <!-- SENSEX -->
+
+            <div class="market-card">
+
+                <div class="market-card-header">
+
+                    <span>
+                        SENSEX
+                    </span>
+
+                    {% if indices.SENSEX.direction == "up" %}
+
+                    <span class="market-arrow positive">
+                        ▲
+                    </span>
+
+                    {% else %}
+
+                    <span class="market-arrow negative">
+                        ▼
+                    </span>
+
+                    {% endif %}
+
+                </div>
+
+
+                <strong class="market-price">
+
+                    {% if indices.SENSEX.price %}
+                        {{ indices.SENSEX.price|floatformat:2 }}
+                    {% else %}
+                        N/A
+                    {% endif %}
+
+                </strong>
+
+
+                <span class="
+                    market-change
+                    {% if indices.SENSEX.change_pct >= 0 %}
+                        positive
+                    {% else %}
+                        negative
+                    {% endif %}
+                ">
+
+                    {% if indices.SENSEX.change_pct >= 0 %}
+                        ▲
+                    {% else %}
+                        ▼
+                    {% endif %}
+
+                    {{ indices.SENSEX.change_pct|default:"0"|floatformat:2 }}%
+
+                </span>
+
+            </div>
+
+
+            <!-- S&P 500 -->
+
+            <div class="market-card">
+
+                <div class="market-card-header">
+
+                    <span>
+                        S&amp;P 500
+                    </span>
+
+                    {% if indices.SP500.direction == "up" %}
+
+                    <span class="market-arrow positive">
+                        ▲
+                    </span>
+
+                    {% else %}
+
+                    <span class="market-arrow negative">
+                        ▼
+                    </span>
+
+                    {% endif %}
+
+                </div>
+
+
+                <strong class="market-price">
+
+                    {% if indices.SP500.price %}
+                        {{ indices.SP500.price|floatformat:2 }}
+                    {% else %}
+                        N/A
+                    {% endif %}
+
+                </strong>
+
+
+                <span class="
+                    market-change
+                    {% if indices.SP500.change_pct >= 0 %}
+                        positive
+                    {% else %}
+                        negative
+                    {% endif %}
+                ">
+
+                    {% if indices.SP500.change_pct >= 0 %}
+                        ▲
+                    {% else %}
+                        ▼
+                    {% endif %}
+
+                    {{ indices.SP500.change_pct|default:"0"|floatformat:2 }}%
+
+                </span>
+
+            </div>
+
+
+            <!-- NASDAQ -->
+
+            <div class="market-card">
+
+                <div class="market-card-header">
+
+                    <span>
+                        NASDAQ
+                    </span>
+
+                    {% if indices.NASDAQ.direction == "up" %}
+
+                    <span class="market-arrow positive">
+                        ▲
+                    </span>
+
+                    {% else %}
+
+                    <span class="market-arrow negative">
+                        ▼
+                    </span>
+
+                    {% endif %}
+
+                </div>
+
+
+                <strong class="market-price">
+
+                    {% if indices.NASDAQ.price %}
+                        {{ indices.NASDAQ.price|floatformat:2 }}
+                    {% else %}
+                        N/A
+                    {% endif %}
+
+                </strong>
+
+
+                <span class="
+                    market-change
+                    {% if indices.NASDAQ.change_pct >= 0 %}
+                        positive
+                    {% else %}
+                        negative
+                    {% endif %}
+                ">
+
+                    {% if indices.NASDAQ.change_pct >= 0 %}
+                        ▲
+                    {% else %}
+                        ▼
+                    {% endif %}
+
+                    {{ indices.NASDAQ.change_pct|default:"0"|floatformat:2 }}%
+
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         STOCK ANALYSIS RESULT
+         ===================================================== -->
+
     {% if analysis %}
-        <div class="analysis">
-            <h2>{{ analysis.name }} <span class="ticker">({{ analysis.symbol }} · {{ analysis.sector }})</span></h2>
-            <div class="price-row">
-                <span class="big-price">&#8377;{{ analysis.current_price }}</span>
-                <span class="change {{ analysis.direction }}">{{ analysis.change_pct }}%</span>
+
+    <section class="dashboard-section stock-result-section">
+
+        <div class="result-header">
+
+            <div>
+
+                <span class="section-label">
+                    AI ANALYSIS RESULT
+                </span>
+
+                <h2>
+                    {{ analysis.name }}
+                </h2>
+
+                <span class="stock-symbol">
+                    {{ analysis.symbol }}
+                </span>
+
             </div>
 
-            <!-- Score badges -->
-            <div class="badges">
-                <div class="badge">
-                    <div class="badge-label">Company Health</div>
-                    <div class="badge-score">{{ analysis.fundamental.overall_score }}/100</div>
-                    <div class="badge-verdict">{{ analysis.fundamental.verdict }}</div>
-                </div>
-                <div class="badge">
-                    <div class="badge-label">Market Timing</div>
-                    <div class="badge-score">{{ analysis.technical.overall_score }}/100</div>
-                    <div class="badge-verdict">{{ analysis.technical.overall_signal }}</div>
-                </div>
-                <div class="badge">
-                    <div class="badge-label">Next-Week Outlook</div>
-                    <div class="badge-score">{{ analysis.prediction.combined_score }}/100</div>
-                    <div class="badge-verdict">{{ analysis.prediction.prediction }}</div>
-                </div>
-            </div>
 
-            <!-- Bull vs Bear bar -->
-            <div class="prob-bar">
-                <div class="bull" style="width: {{ analysis.prediction.probability.bullish }}%;">
-                    Up {{ analysis.prediction.probability.bullish }}%
-                </div>
-                <div class="bear" style="width: {{ analysis.prediction.probability.bearish }}%;">
-                    Down {{ analysis.prediction.probability.bearish }}%
-                </div>
-            </div>
+            <a
+                href="{% url 'stock_analysis' %}?symbol={{ analysis.symbol }}"
+                class="full-analysis-button">
 
-            <!-- Price chart (last 60 days) -->
-            <h3>Price — Last 60 Days</h3>
-            <canvas id="priceChart" height="110"></canvas>
+                Full Analysis →
+                
+            </a>
 
-            <!-- Key insights -->
-            {% if analysis.insights %}
-                <h3>Key Insights</h3>
-                <ul class="insights">
-                    {% for i in analysis.insights %}<li>{{ i }}</li>{% endfor %}
-                </ul>
-            {% endif %}
-
-            <!-- Personalised tips -->
-            {% if tips %}
-                <h3>&#128737; Safety Tips (for {{ risk }} investors)</h3>
-                <ul class="tips">
-                    {% for t in tips %}<li>{{ t }}</li>{% endfor %}
-                </ul>
-            {% endif %}
-
-            <!-- Disclaimer -->
-            <div class="disclaimer">&#9888; {{ analysis.disclaimer }}</div>
         </div>
+
+
+        <!-- =================================================
+             ANALYSIS SUMMARY
+             ================================================= -->
+
+        <div class="analysis-grid">
+
+
+            <!-- PRICE -->
+
+            <div class="analysis-card">
+
+                <span class="analysis-label">
+                    Current Price
+                </span>
+
+                <strong>
+                    ₹{{ analysis.current_price|floatformat:2 }}
+                </strong>
+
+                <small class="
+                    {% if analysis.direction == 'up' %}
+                        positive
+                    {% else %}
+                        negative
+                    {% endif %}
+                ">
+
+                    {% if analysis.direction == "up" %}
+                        ▲
+                    {% else %}
+                        ▼
+                    {% endif %}
+
+                    {{ analysis.change_pct|floatformat:2 }}%
+
+                </small>
+
+            </div>
+
+
+            <!-- FUNDAMENTAL -->
+
+            <div class="analysis-card">
+
+                <span class="analysis-label">
+                    Company Health
+                </span>
+
+                <strong>
+                    {{ analysis.fundamental.score|floatformat:1 }}
+                </strong>
+
+                <small>
+                    {{ analysis.fundamental.verdict }}
+                </small>
+
+            </div>
+
+
+            <!-- TECHNICAL -->
+
+            <div class="analysis-card">
+
+                <span class="analysis-label">
+                    Market Timing
+                </span>
+
+                <strong>
+                    {{ analysis.technical.overall_score|floatformat:1 }}
+                </strong>
+
+                <small>
+                    {{ analysis.technical.overall_signal }}
+                </small>
+
+            </div>
+
+
+            <!-- AI -->
+
+            <div class="analysis-card ai-result-card">
+
+                <span class="analysis-label">
+                    ✦ AI Outlook
+                </span>
+
+                <strong>
+                    {{ analysis.prediction }}
+                </strong>
+
+                <small>
+                    AI-assisted analysis
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             CHART
+             ================================================= -->
+
+        <div class="chart-card">
+
+            <div class="chart-header">
+
+                <div>
+
+                    <span class="section-label">
+                        PRICE MOVEMENT
+                    </span>
+
+                    <h3>
+                        Last 60 Trading Days
+                    </h3>
+
+                </div>
+
+            </div>
+
+
+            <div class="chart-container">
+
+                <canvas id="stockChart"></canvas>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             KEY INSIGHTS
+             ================================================= -->
+
+        {% if analysis.insights %}
+
+        <div class="insights-card">
+
+            <div class="card-heading">
+
+                <span>
+                    💡
+                </span>
+
+                <div>
+
+                    <h3>
+                        Key Insights
+                    </h3>
+
+                    <p>
+                        Important points identified from the analysis.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="insights-list">
+
+                {% for insight in analysis.insights %}
+
+                <div class="insight-item">
+
+                    <span class="insight-icon">
+                        ✓
+                    </span>
+
+                    <span>
+                        {{ insight }}
+                    </span>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+        {% endif %}
+
+
+        <!-- =================================================
+             RISK TIPS
+             ================================================= -->
+
+        {% if tips %}
+
+        <div class="tips-card">
+
+            <div class="card-heading">
+
+                <span>
+                    🧭
+                </span>
+
+                <div>
+
+                    <h3>
+                        Risk-Aware Tips
+                    </h3>
+
+                    <p>
+                        Consider these points alongside your own research.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="tips-list">
+
+                {% for tip in tips %}
+
+                <div class="tip-item">
+                    {{ tip }}
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+        {% endif %}
+
+    </section>
+
     {% endif %}
-{% endblock %}
 
-{% block scripts %}
-{% if analysis %}
-<!-- Chart.js draws the small price chart -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <!-- =====================================================
+         HOW IT WORKS
+         ===================================================== -->
+
+    <section class="dashboard-section how-it-works">
+
+        <div class="section-heading">
+
+            <div>
+
+                <span class="section-label">
+                    INVESTSMART
+                </span>
+
+                <h2>
+                    Understand a Stock in 3 Steps
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div class="steps-grid">
+
+
+            <div class="step-card">
+
+                <div class="step-number">
+                    01
+                </div>
+
+                <div class="step-icon">
+                    🔎
+                </div>
+
+                <h3>
+                    Choose a Stock
+                </h3>
+
+                <p>
+                    Search for an NSE stock using its symbol.
+                </p>
+
+            </div>
+
+
+            <div class="step-card">
+
+                <div class="step-number">
+                    02
+                </div>
+
+                <div class="step-icon">
+                    📊
+                </div>
+
+                <h3>
+                    Analyse the Data
+                </h3>
+
+                <p>
+                    Review fundamental and technical indicators.
+                </p>
+
+            </div>
+
+
+            <div class="step-card">
+
+                <div class="step-number">
+                    03
+                </div>
+
+                <div class="step-icon">
+                    ✦
+                </div>
+
+                <h3>
+                    Understand the Insights
+                </h3>
+
+                <p>
+                    Use AI-assisted insights to understand the available data.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         DISCLAIMER
+         ===================================================== -->
+
+    <div class="dashboard-disclaimer">
+
+        <span>
+            ℹ️
+        </span>
+
+        <p>
+            Market information and analysis are provided for educational
+            purposes only. They are not financial advice. Markets are
+            unpredictable. Please conduct your own research before making
+            investment decisions.
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     STOCK SELECTION + CHART
+     ========================================================= -->
+
 <script>
-    // Data passed from Django (already turned into JSON in views.py)
-    const labels = {{ chart_labels|safe }};
-    const prices = {{ chart_prices|safe }};
-    const up = prices.length > 1 && prices[prices.length - 1] >= prices[0];
-    const line = up ? "#26a69a" : "#ef5350";
 
-    new Chart(document.getElementById("priceChart"), {
-        type: "line",
-        data: {
-            labels: labels,
-            datasets: [{
-                data: prices,
-                borderColor: line,
-                backgroundColor: "rgba(38,166,154,0.08)",
-                fill: true, tension: 0.25, pointRadius: 0, borderWidth: 2,
-            }]
-        },
-        options: {
-            plugins: { legend: { display: false } },
-            scales: {
-                x: { ticks: { maxTicksLimit: 6, color: "#888" }, grid: { display: false } },
-                y: { ticks: { color: "#888" } }
-            }
-        }
+function selectStock(symbol) {
+
+    const input =
+        document.getElementById("stockSymbol");
+
+    if (!input) {
+        return;
+    }
+
+    input.value = symbol;
+
+    input.focus();
+
+    input.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
     });
-</script>
+
+}
+
+
+{% if analysis and chart_labels and chart_prices %}
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const canvas =
+            document.getElementById("stockChart");
+
+        if (!canvas) {
+            return;
+        }
+
+
+        const labels =
+            JSON.parse('{{ chart_labels|escapejs }}');
+
+        const prices =
+            JSON.parse('{{ chart_prices|escapejs }}');
+
+
+        new Chart(
+            canvas,
+            {
+                type: "line",
+
+                data: {
+
+                    labels: labels,
+
+                    datasets: [{
+
+                        label: "{{ analysis.symbol }} Price",
+
+                        data: prices,
+
+                        borderWidth: 2,
+
+                        pointRadius: 0,
+
+                        tension: 0.25,
+
+                        fill: true
+
+                    }]
+
+                },
+
+
+                options: {
+
+                    responsive: true,
+
+                    maintainAspectRatio: false,
+
+                    plugins: {
+
+                        legend: {
+                            display: false
+                        }
+
+                    },
+
+                    scales: {
+
+                        x: {
+
+                            ticks: {
+                                maxTicksLimit: 8
+                            }
+
+                        },
+
+                        y: {
+
+                            beginAtZero: false
+
+                        }
+
+                    }
+
+                }
+
+            }
+        );
+
+    }
+);
+
 {% endif %}
+
+</script>
+
 {% endblock %}

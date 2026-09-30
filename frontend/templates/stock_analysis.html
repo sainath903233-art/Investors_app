@@ -1,0 +1,1138 @@
+{% extends "base.html" %}
+
+{% block title %}
+Stock Analysis — InvestSmart
+{% endblock %}
+
+{% block content %}
+
+<div class="stock-page">
+
+
+{% if stock_error %}
+    <div class="msg error">
+        {{ stock_error }}
+    </div>
+{% endif %}
+
+
+{% if analysis %}
+
+<!-- STOCK HEADER -->
+
+<div class="stock-page-header">
+
+    <div>
+        <span class="section-label">
+            STOCK ANALYSIS
+        </span>
+
+        <h1>
+            {{ analysis.name }}
+        </h1>
+
+        <p class="stock-symbol">
+            {{ analysis.symbol }} · {{ analysis.sector }}
+        </p>
+    </div>
+
+
+    <div class="stock-price-box">
+
+        <span>
+            Current Price
+        </span>
+
+        <strong>
+            ₹{{ analysis.current_price }}
+        </strong>
+
+        <div class="change {{ analysis.direction }}">
+
+            {% if analysis.direction == "up" %}
+                ↑
+            {% else %}
+                ↓
+            {% endif %}
+
+            {{ analysis.change_pct }}%
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- SCORE SUMMARY -->
+
+<div class="analysis-grid">
+
+    <div class="analysis-card">
+
+        <div class="analysis-icon">
+            🏢
+        </div>
+
+        <span>
+            Company Health
+        </span>
+
+        <strong>
+            {{ analysis.fundamental.overall_score }}/100
+        </strong>
+
+        <small>
+            {{ analysis.fundamental.verdict }}
+        </small>
+
+    </div>
+
+
+    <div class="analysis-card">
+
+        <div class="analysis-icon">
+            📈
+        </div>
+
+        <span>
+            Market Timing
+        </span>
+
+        <strong>
+            {{ analysis.technical.overall_score }}/100
+        </strong>
+
+        <small>
+            {{ analysis.technical.verdict }}
+        </small>
+
+    </div>
+
+
+    <div class="analysis-card">
+
+        <div class="analysis-icon">
+            🔮
+        </div>
+
+        <span>
+            Short-Term Outlook
+        </span>
+
+        <strong>
+            {{ analysis.prediction.combined_score }}/100
+        </strong>
+
+        <small>
+            {{ analysis.prediction.prediction }}
+        </small>
+
+    </div>
+
+</div>
+
+
+<!-- PRICE CHART -->
+
+<div class="chart-card">
+
+    <div class="chart-header">
+
+        <div>
+
+            <span class="section-label">
+                PRICE HISTORY
+            </span>
+
+            <h2>
+                {{ analysis.symbol }} Price — Last 60 Days
+            </h2>
+
+        </div>
+
+        <span class="chart-badge">
+            60D
+        </span>
+
+    </div>
+
+
+    <div class="chart-container">
+        <canvas id="priceChart"></canvas>
+    </div>
+
+</div>
+
+
+<!-- FUNDAMENTAL BREAKDOWN -->
+
+<section class="fundamental-breakdown">
+
+    <div class="content-heading">
+
+        <div class="content-icon">
+            📊
+        </div>
+
+        <div>
+
+            <span class="section-label">
+                EXPLAINABLE ANALYSIS
+            </span>
+
+            <h2>
+                Fundamental Score Breakdown
+            </h2>
+
+            <p>
+                See how each available financial metric
+                contributes to the company health score.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="fundamental-table">
+
+        <div class="fundamental-row fundamental-header">
+
+            <div>Metric</div>
+            <div>Value</div>
+            <div>Score</div>
+            <div>Weight</div>
+            <div>Contribution</div>
+
+        </div>
+
+
+        {% for key, metric in analysis.fundamental.metrics.items %}
+
+            {% if metric.value is not None %}
+
+            <div class="fundamental-row">
+
+                <div class="metric-name">
+
+                    {% if key == "roe" %}
+                        Return on Equity
+                    {% elif key == "roic" %}
+                        Return on Invested Capital
+                    {% elif key == "net_margin" %}
+                        Net Margin
+                    {% elif key == "pe_ratio" %}
+                        P/E Ratio
+                    {% elif key == "pb_ratio" %}
+                        P/B Ratio
+                    {% elif key == "peg_ratio" %}
+                        PEG Ratio
+                    {% else %}
+                        {{ key|title }}
+                    {% endif %}
+
+                </div>
+
+                <div>
+                    {{ metric.value }}
+                </div>
+
+                <div class="metric-score">
+                    {{ metric.score }}/100
+                </div>
+
+                <div>
+                    {{ metric.weight|floatformat:2 }}
+                </div>
+
+                <div class="metric-contribution">
+                    {{ metric.contribution|floatformat:2 }}
+                </div>
+
+            </div>
+
+            {% endif %}
+
+        {% endfor %}
+
+    </div>
+
+
+    <div class="fundamental-total">
+
+        <span>
+            Overall Fundamental Score
+        </span>
+
+        <strong>
+            {{ analysis.fundamental.overall_score }}/100
+        </strong>
+
+        <small>
+            {{ analysis.fundamental.verdict }}
+        </small>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     TECHNICAL SCORE BREAKDOWN
+     ========================================================= -->
+
+<section class="technical-breakdown">
+    <div class="section-header">
+        <h2>Technical Score Breakdown</h2>
+        <p>See how each technical indicator contributes to the overall technical score.</p>
+    </div>
+
+    <div class="fundamental-table technical-table">
+        <div class="fundamental-row fundamental-header">
+            <div>Indicator</div>
+            <div>Signal</div>
+            <div>Score</div>
+            <div>Weight</div>
+            <div>Contribution</div>
+        </div>
+
+        <div class="fundamental-row">
+            <div class="metric-name">Trend</div>
+            <div>
+                <span class="
+                    {% if analysis.technical.indicators.trend.signal == 'BUY' %}
+                        signal-buy
+                    {% elif analysis.technical.indicators.trend.signal == 'SELL' %}
+                        signal-sell
+                    {% else %}
+                        signal-neutral
+                    {% endif %}
+                ">
+                    {{ analysis.technical.indicators.trend.signal }}
+                </span>
+            </div>
+            <div class="metric-score">
+                {{ analysis.technical.indicators.trend.score }}/100
+            </div>
+            <div>
+                {{ analysis.technical.indicators.trend.weight|floatformat:2 }}
+            </div>
+            <div class="metric-contribution">
+                {{ analysis.technical.indicators.trend.contribution|floatformat:2 }}
+            </div>
+        </div>
+
+        <div class="fundamental-row">
+            <div class="metric-name">MACD</div>
+            <div>
+                <span class="
+                    {% if analysis.technical.indicators.macd.signal == 'BUY' %}
+                        signal-buy
+                    {% elif analysis.technical.indicators.macd.signal == 'SELL' %}
+                        signal-sell
+                    {% else %}
+                        signal-neutral
+                    {% endif %}
+                ">
+                    {{ analysis.technical.indicators.macd.signal }}
+                </span>
+            </div>
+            <div class="metric-score">
+                {{ analysis.technical.indicators.macd.score }}/100
+            </div>
+            <div>
+                {{ analysis.technical.indicators.macd.weight|floatformat:2 }}
+            </div>
+            <div class="metric-contribution">
+                {{ analysis.technical.indicators.macd.contribution|floatformat:2 }}
+            </div>
+        </div>
+
+        <div class="fundamental-row">
+            <div class="metric-name">RSI</div>
+            <div>
+                <span class="
+                    {% if analysis.technical.indicators.rsi.signal == 'BUY' %}
+                        signal-buy
+                    {% elif analysis.technical.indicators.rsi.signal == 'SELL' %}
+                        signal-sell
+                    {% else %}
+                        signal-neutral
+                    {% endif %}
+                ">
+                    {{ analysis.technical.indicators.rsi.signal }}
+                </span>
+            </div>
+            <div class="metric-score">
+                {{ analysis.technical.indicators.rsi.score }}/100
+            </div>
+            <div>
+                {{ analysis.technical.indicators.rsi.weight|floatformat:2 }}
+            </div>
+            <div class="metric-contribution">
+                {{ analysis.technical.indicators.rsi.contribution|floatformat:2 }}
+            </div>
+        </div>
+
+        <div class="fundamental-row">
+            <div class="metric-name">Bollinger Bands</div>
+            <div>
+                <span class="
+                    {% if analysis.technical.indicators.bollinger_bands.signal == 'BUY' %}
+                        signal-buy
+                    {% elif analysis.technical.indicators.bollinger_bands.signal == 'SELL' %}
+                        signal-sell
+                    {% else %}
+                        signal-neutral
+                    {% endif %}
+                ">
+                    {{ analysis.technical.indicators.bollinger_bands.signal }}
+                </span>
+            </div>
+            <div class="metric-score">
+                {{ analysis.technical.indicators.bollinger_bands.score }}/100
+            </div>
+            <div>
+                {{ analysis.technical.indicators.bollinger_bands.weight|floatformat:2 }}
+            </div>
+            <div class="metric-contribution">
+                {{ analysis.technical.indicators.bollinger_bands.contribution|floatformat:2 }}
+            </div>
+        </div>
+
+        <div class="fundamental-row">
+            <div class="metric-name">Volume</div>
+            <div>
+                <span class="
+                    {% if analysis.technical.indicators.volume.signal == 'BUY' %}
+                        signal-buy
+                    {% elif analysis.technical.indicators.volume.signal == 'SELL' %}
+                        signal-sell
+                    {% else %}
+                        signal-neutral
+                    {% endif %}
+                ">
+                    {{ analysis.technical.indicators.volume.signal }}
+                </span>
+            </div>
+            <div class="metric-score">
+                {{ analysis.technical.indicators.volume.score }}/100
+            </div>
+            <div>
+                {{ analysis.technical.indicators.volume.weight|floatformat:2 }}
+            </div>
+            <div class="metric-contribution">
+                {{ analysis.technical.indicators.volume.contribution|floatformat:2 }}
+            </div>
+        </div>
+    </div>
+
+    <div class="fundamental-total">
+        <span>Overall Technical Score</span>
+        <strong>{{ analysis.technical.overall_score }}/100</strong>
+        <small>{{ analysis.technical.verdict }}</small>
+    </div>
+</section>
+
+<!-- GENERATIVE AI ANALYSIS -->
+
+{% if analysis.ai_analysis and analysis.ai_analysis.success %}
+
+<section class="genai-card">
+
+    <div class="content-heading">
+
+        <div class="content-icon">
+            🤖
+        </div>
+
+        <div>
+
+            <span class="section-label">
+                GENERATIVE AI
+            </span>
+
+            <h2>
+                AI-Powered Investment Explanation
+            </h2>
+
+            <p>
+                AI-generated interpretation of the calculated
+                financial and technical evidence for your
+                {{ risk }} risk profile.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="genai-section">
+
+        <h3>
+            💡 Explanation
+        </h3>
+
+        <p>
+            {{ analysis.ai_analysis.explanation|linebreaksbr }}
+        </p>
+
+    </div>
+
+
+    {% if analysis.ai_analysis.key_risks %}
+
+    <div class="genai-section">
+
+        <h3>
+            ⚠️ Key Risks
+        </h3>
+
+        <div class="genai-list">
+
+            {% for risk_item in analysis.ai_analysis.key_risks %}
+
+            <div class="genai-list-item">
+
+                <span>
+                    ⚠
+                </span>
+
+                <p>
+                    {{ risk_item }}
+                </p>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+
+    {% if analysis.ai_analysis.what_to_watch %}
+
+    <div class="genai-section">
+
+        <h3>
+            👀 What to Watch
+        </h3>
+
+        <div class="genai-list">
+
+            {% for item in analysis.ai_analysis.what_to_watch %}
+
+            <div class="genai-list-item">
+
+                <span>
+                    →
+                </span>
+
+                <p>
+                    {{ item }}
+                </p>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+
+    {% if analysis.ai_analysis.risk_aware_view %}
+
+    <div class="genai-section">
+
+        <h3>
+            🛡️ Risk-Aware View
+        </h3>
+
+        <p>
+            {{ analysis.ai_analysis.risk_aware_view|linebreaksbr }}
+        </p>
+
+    </div>
+
+    {% endif %}
+
+
+    <div class="genai-disclaimer">
+
+        <strong>
+            AI Notice:
+        </strong>
+
+        This Generative AI output interprets the
+        application's calculated analysis. It does not
+        guarantee future market performance and is not
+        financial advice.
+
+    </div>
+
+</section>
+
+{% endif %}
+
+
+<!-- KEY INSIGHTS -->
+
+{% if analysis.insights %}
+
+<section class="insight-card">
+
+    <div class="content-heading">
+
+        <div class="content-icon">
+            🤖
+        </div>
+
+        <div>
+
+            <span class="section-label">
+                ANALYTICAL INSIGHTS
+            </span>
+
+            <h2>
+                Key Insights
+            </h2>
+
+        </div>
+
+    </div>
+
+
+    <div class="insights">
+
+        {% for insight in analysis.insights %}
+
+        <div class="insight-item">
+
+            <span>
+                ✓
+            </span>
+
+            <p>
+                {{ insight }}
+            </p>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</section>
+
+{% endif %}
+
+
+<!-- RISK TIPS -->
+
+{% if tips %}
+
+<section class="tips-card">
+
+    <div class="content-heading">
+
+        <div class="content-icon">
+            🛡️
+        </div>
+
+        <div>
+
+            <span class="section-label">
+                RISK AWARENESS
+            </span>
+
+            <h2>
+                Investor Safety Tips
+            </h2>
+
+            <p>
+                Based on your
+                <strong>{{ risk }}</strong>
+                risk profile.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="tips-list">
+
+        {% for tip in tips %}
+
+        <div class="tip-item">
+
+            <span>
+                ✓
+            </span>
+
+            <p>
+                {{ tip }}
+            </p>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</section>
+
+{% endif %}
+
+
+<!-- BACKTEST -->
+
+{% if backtest %}
+
+<section class="backtest-card">
+
+    <div class="content-heading">
+
+        <div class="content-icon">
+            🧪
+        </div>
+
+        <div>
+
+            <span class="section-label">
+                HISTORICAL VALIDATION
+            </span>
+
+            <h2>
+                Backtest Performance
+            </h2>
+
+            <p>
+                Historical evaluation using a
+                {{ backtest.horizon_days }}-trading-day horizon.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="backtest-metrics">
+
+        <div class="backtest-metric">
+
+            <span>
+                Accuracy
+            </span>
+
+            <strong>
+                {{ backtest.metrics.accuracy }}%
+            </strong>
+
+        </div>
+
+
+        <div class="backtest-metric">
+
+            <span>
+                Precision
+            </span>
+
+            <strong>
+                {{ backtest.metrics.precision }}%
+            </strong>
+
+        </div>
+
+
+        <div class="backtest-metric">
+
+            <span>
+                Recall
+            </span>
+
+            <strong>
+                {{ backtest.metrics.recall }}%
+            </strong>
+
+        </div>
+
+
+        <div class="backtest-metric">
+
+            <span>
+                F1 Score
+            </span>
+
+            <strong>
+                {{ backtest.metrics.f1_score }}%
+            </strong>
+
+        </div>
+
+    </div>
+
+
+    <div class="backtest-info">
+
+        <p>
+            <strong>
+                Historical cases tested:
+            </strong>
+
+            {{ backtest.data_points_tested }}
+        </p>
+
+        <p>
+            <strong>
+                Directional signals:
+            </strong>
+
+            {{ backtest.directional_signals }}
+        </p>
+
+        <p>
+            <strong>
+                Neutral predictions:
+            </strong>
+
+            {{ backtest.neutral_predictions }}
+        </p>
+
+        <p>
+            <strong>
+                Actual neutral outcomes:
+            </strong>
+
+            {{ backtest.actual_neutral_outcomes }}
+        </p>
+
+        <p>
+            <strong>
+                Actionable predictions:
+            </strong>
+
+            {{ backtest.metrics.total_predictions }}
+        </p>
+
+        <p>
+            <strong>
+                Correct directional predictions:
+            </strong>
+
+            {{ backtest.metrics.correct_predictions }}
+        </p>
+
+    </div>
+
+
+    <div class="confusion-section">
+
+        <h3>
+            Confusion Matrix
+        </h3>
+
+        <div class="confusion-grid">
+
+            <div class="confusion-box">
+
+                <span>
+                    True Positive
+                </span>
+
+                <strong>
+                    {{ backtest.metrics.confusion_matrix.true_positive }}
+                </strong>
+
+                <small>
+                    Predicted BUY / Actual BUY
+                </small>
+
+            </div>
+
+
+            <div class="confusion-box">
+
+                <span>
+                    True Negative
+                </span>
+
+                <strong>
+                    {{ backtest.metrics.confusion_matrix.true_negative }}
+                </strong>
+
+                <small>
+                    Predicted SELL / Actual SELL
+                </small>
+
+            </div>
+
+
+            <div class="confusion-box">
+
+                <span>
+                    False Positive
+                </span>
+
+                <strong>
+                    {{ backtest.metrics.confusion_matrix.false_positive }}
+                </strong>
+
+                <small>
+                    Predicted BUY / Actual SELL
+                </small>
+
+            </div>
+
+
+            <div class="confusion-box">
+
+                <span>
+                    False Negative
+                </span>
+
+                <strong>
+                    {{ backtest.metrics.confusion_matrix.false_negative }}
+                </strong>
+
+                <small>
+                    Predicted SELL / Actual BUY
+                </small>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="baseline-section">
+
+        <h3>
+            Simple Baseline Comparison
+        </h3>
+
+        <div class="baseline-grid">
+
+            <div>
+
+                <span>
+                    Always BUY
+                </span>
+
+                <strong>
+                    {{ backtest.metrics.baseline.always_buy_accuracy }}%
+                </strong>
+
+            </div>
+
+
+            <div>
+
+                <span>
+                    Always SELL
+                </span>
+
+                <strong>
+                    {{ backtest.metrics.baseline.always_sell_accuracy }}%
+                </strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="backtest-note">
+
+        <strong>
+            Methodology:
+        </strong>
+
+        The system generates a technical signal using only
+        historical data available at each test date. The signal
+        is compared with the actual price return after the
+        selected future horizon. Returns above +1% are classified
+        as BUY, returns below −1% as SELL, and movements within
+        ±1% as NEUTRAL. Directional performance metrics are
+        calculated only for BUY and SELL outcomes.
+
+    </div>
+
+</section>
+
+
+{% elif backtest_error %}
+
+<div class="msg error">
+    {{ backtest_error }}
+</div>
+
+{% endif %}
+
+
+<!-- DISCLAIMER -->
+
+<div class="disclaimer">
+
+    <strong>
+        ⚠️ Important:
+    </strong>
+
+    {{ analysis.disclaimer }}
+
+</div>
+
+
+<!-- BACK TO DASHBOARD -->
+
+<div class="back-dashboard">
+
+    <a
+        href="{% url 'dashboard' %}"
+        class="btn-outline"
+    >
+        ← Back to Dashboard
+    </a>
+
+</div>
+
+
+{% else %}
+
+<div class="msg error">
+    No stock analysis available.
+</div>
+
+{% endif %}
+
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+
+{% if analysis %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<script>
+
+const labels = {{ chart_labels|safe }};
+const prices = {{ chart_prices|safe }};
+
+const chartElement =
+    document.getElementById("priceChart");
+
+if (chartElement && prices.length > 0) {
+
+    const up =
+        prices.length > 1 &&
+        prices[prices.length - 1] >= prices[0];
+
+    const line =
+        up ? "#16a34a" : "#dc2626";
+
+    new Chart(
+        chartElement,
+        {
+            type: "line",
+
+            data: {
+
+                labels: labels,
+
+                datasets: [
+
+                    {
+                        data: prices,
+
+                        borderColor: line,
+
+                        backgroundColor:
+                            up
+                                ? "rgba(22,163,74,0.08)"
+                                : "rgba(220,38,38,0.08)",
+
+                        fill: true,
+
+                        tension: 0.3,
+
+                        pointRadius: 0,
+
+                        pointHoverRadius: 5,
+
+                        borderWidth: 2
+                    }
+
+                ]
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                plugins: {
+
+                    legend: {
+                        display: false
+                    },
+
+                    tooltip: {
+                        mode: "index",
+                        intersect: false
+                    }
+
+                },
+
+                scales: {
+
+                    x: {
+
+                        ticks: {
+                            maxTicksLimit: 7
+                        },
+
+                        grid: {
+                            display: false
+                        }
+
+                    },
+
+                    y: {
+
+                        ticks: {
+
+                            callback: function(value) {
+                                return "₹" + value;
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+    );
+
+}
+
+</script>
+
+{% endif %}
+
+{% endblock %}

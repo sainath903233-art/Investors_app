@@ -1,15 +1,90 @@
-<!-- templates/help.html -->
 {% extends "base.html" %}
+
 {% block title %}Help — InvestSmart{% endblock %}
+
 {% block content %}
-    <h1>Help</h1>
-    <h3>How do I start?</h3>
-    <p>Click "Sign Up", create an account, then log in to see your dashboard.</p>
-    <h3>How do I analyse a share?</h3>
-    <p>Go to your dashboard and search for a share by its symbol (for example RELIANCE or TCS).</p>
-    <h3>Why is market data empty?</h3>
-    <p>The market data comes from the FastAPI backend. Make sure it is running on port 9000.</p>
-    <h3>Is this financial advice?</h3>
-    <p>No. Everything here is for learning only. Always take your own decisions and consult a
-       registered adviser before investing.</p>
+
+<section class="section">
+
+<h1>Help & Frequently Asked Questions</h1>
+
+<p class="section-subtitle">
+    Find answers to common questions about using InvestSmart.
+</p>
+
+<div class="cards-grid">
+
+    <div class="card">
+        <div class="card-icon">🚀</div>
+        <h3>How do I start?</h3>
+        <p>
+            Click "Get Started" to create an account. After
+            registering and logging in, you can access your dashboard.
+        </p>
+    </div>
+
+    <div class="card">
+        <div class="card-icon">🔎</div>
+        <h3>How do I analyse a stock?</h3>
+        <p>
+            Go to your dashboard and search for a stock using its
+            symbol, such as RELIANCE, TCS, INFY, HDFCBANK, or SBIN.
+        </p>
+    </div>
+
+    <div class="card">
+        <div class="card-icon">📊</div>
+        <h3>What does the analysis include?</h3>
+        <p>
+            The stock analysis includes fundamental indicators,
+            technical indicators, price charts, a short-term outlook,
+            and key insights.
+        </p>
+    </div>
+
+    <div class="card">
+        <div class="card-icon">🤖</div>
+        <h3>What are the AI insights?</h3>
+        <p>
+            Generative AI converts the available financial and
+            technical information into simpler explanations and
+            risk-aware insights.
+        </p>
+    </div>
+
+    <div class="card">
+        <div class="card-icon">📈</div>
+        <h3>What is backtesting?</h3>
+        <p>
+            Backtesting evaluates historical technical signals by
+            comparing them with subsequent price movements. It is
+            provided for educational analysis and does not guarantee
+            future performance.
+        </p>
+    </div>
+
+    <div class="card">
+        <div class="card-icon">⚙️</div>
+        <h3>Why is market data empty?</h3>
+        <p>
+            Market information is retrieved from the FastAPI backend.
+            Make sure the backend is running and available on the
+            configured port, currently port 9000.
+        </p>
+    </div>
+
+    <div class="card">
+        <div class="card-icon">🛡️</div>
+        <h3>Is this financial advice?</h3>
+        <p>
+            No. InvestSmart is an educational and analytical platform.
+            Market data and analysis can change, and investment
+            decisions should be made independently.
+        </p>
+    </div>
+
+</div>
+
+</section>
+
 {% endblock %}
